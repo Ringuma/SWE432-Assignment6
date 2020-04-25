@@ -359,13 +359,34 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	/** *****************************************************
 	 *  Prints the results page, 
 	 *  echoing the form data to the user.
-	********************************************************* */
+	********************************************************************************* */
 	private void PrintBody (PrintWriter out, HttpServletRequest request, Enumeration<String> parameters)
 	{
+		 //****** This is how I tested the retrieval of data from Database *********
+		 EntriesManager entriesManager = new EntriesManager();
+  	 String[][] reviewsTable = entriesManager.getAllReviews();	
+		
 	   String context = request.getContextPath();
 		
+		 out.println("	<body>");
+		 out.println("	  <table>");
+		 for (int i=0; i<reviewsTable.length; i++)
+		 {
+			 	out.println("<tr>");
+
+				for (int j=0; j<12; j++)
+				{
+						out.println("<td>  " + reviewsTable[i][j] + " </td>");
+				}
+				out.println("</tr>");
+		 }
+		 out.println("	  </table>");
+		 out.println("  </body>");
+		//***********************************************************************************
+		
+/*		
 	   out.println("	<body  class=\"container text-center\">");
-	   out.println("		<h1>Form Results Page</h1>");
+	   out.println("		<h1>Form Results Page (Sergio's version)</h1>");
 	   out.println("		<p class=\"font-italic f-09\">Thank you for submitting the form.</p>");
 	   out.println("		<table class=\"table table-sm table-bordered table-hover\">");
 	   
@@ -394,8 +415,8 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	   out.println("");
 	   out.println("		<script type=\"text/javascript\" src=\"" + context + formJs + "\"></script>");
 	   out.println("	</body>");
+	*/
 	} 
-
 
 	/** *****************************************************
 	 *  Prints the bottom of the HTML page.

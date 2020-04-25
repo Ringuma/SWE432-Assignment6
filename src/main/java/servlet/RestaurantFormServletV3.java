@@ -46,8 +46,8 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	// Location of servlet.
-	static String Domain  = "";
-	static String Path    = "";
+	static String Domain  = "swe432-assignment6.herokuapp.com";
+	static String Path    = "/";
 	static String Servlet = "restaurantForm3";
 	
 	static String formStyles = "/resources/css/form.css";

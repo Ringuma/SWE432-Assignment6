@@ -60,29 +60,25 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	private static Connection connection = null;
 
 	
-     		private class EntriesManager{
-					
-      		private Connection getConnection()	throws URISyntaxException, SQLException {
-          			String dbUrl = System.getenv("JDBC_DATABASE_URL");
-          			return DriverManager.getConnection(dbUrl);
-   		   	}
-	
+  private class EntriesManager{
 		
-					public boolean save(HttpServletRequest request)
-					{
-					  PreparedStatement statement = null;
-						try	{
-							connection = connection == null ? getConnection() : connection;
-							
-							String insertQueryStr = "INSERT INTO reviews (pName, pAge, pGender, pOtherGender, rName, rVisit, vTime, cutomerService, speed, quality, price, comments) values (?,?,?,?,?,?,?,?,?,?,?,?)";     
-							
-							statement = connection.prepareStatement( insertQueryStr);
-							
-  						Enumeration<String> parameters = request.getParameterNames();
+      private Connection getConnection()
+        throws URISyntaxException, SQLException {
+          String dbUrl = System.getenv("JDBC_DATABASE_URL");
+          return DriverManager.getConnection(dbUrl);
+      }
 
-							int c = 1;
-	   					while (parameters.hasMoreElements()) 
-							{
+      public boolean save(Enumeration<String> parameters, HttpServletRequest request){
+        PreparedStatement statement = null;
+        try {
+          connection = connection == null ? getConnection() : connection;
+          statement = connection.prepareStatement(
+	          "INSERT INTO reviews (pName, pAge, pGender, pOtherGender, rName, rVisit, vTime, customerService, speed, quality, price, comments) values (?,?,?,?,?,?,?,?,?,?,?,?)" 
+	           );  
+		
+					int c = 1;
+ 					while (parameters.hasMoreElements()) 
+					{
 				  			String parameterName = parameters.nextElement();
 				   			String parameterValue = request.getParameter(parameterName);
 								
@@ -96,78 +92,82 @@ public class RestaurantFormServletV3 extends HttpServlet {
 								
 								c++;	
 
-							} // end while
-         			
-							statement.executeUpdate();
-							return true;
-						} // end trying connection and insert query
-		        catch(URISyntaxException uriSyntaxException){
-          		uriSyntaxException.printStackTrace();
-        		}
-        		catch (Exception exception) {
-          		exception.printStackTrace();
-        		}finally {
-          		if (statement != null) {
-            		try{
-              		statement.close();
-            		}catch(SQLException sqlException){
-              		sqlException.printStackTrace();
-            		}
-          		}
-        		}
-						return false;
-					} // end save method
-				
-	
-		      public String[][] getAllReviews()
-					{
-						int reviewsCount;
-						String[][] reviewsTable = new String[200][12];
-						for (int i=0; i<200; i++)
-							for (int j=0; j<12; j++)
-								reviewsTable[i][j] = "";
-					
-						Statement statement = null;
-  		      ResultSet entries = null;
+					} // end while
+	  
+          statement.executeUpdate();
+					reviewsTotal++;
+          return true;
 
-						try {
-      	  	  connection = connection == null ? getConnection() : connection;
-        	  	statement = connection.createStatement();
-          		entries = statement.executeQuery(
-            		"SELECT pName, pAge, pGender, pOtherGender, rName, rVisit, vTime, cutomerService, speed, quality, price, comments FROM reviews");
+				}catch(URISyntaxException uriSyntaxException){
+          uriSyntaxException.printStackTrace();
+        }
+        catch (Exception exception) {
+          exception.printStackTrace();
+        }finally {
+          if (statement != null) {
+            try{
+              statement.close();
+            }catch(SQLException sqlException){
+              sqlException.printStackTrace();
+            }
+          }
+        }
+
+        return false;
+      }	
+	
+      public String[][] getAllReviews()
+			{
+				int reviewsCount;
+				String[][] reviewsTable = new String[200][12];
+				for (int i=0; i<200; i++)
+					for (int j=0; j<12; j++)
+						reviewsTable[i][j] = "";
 					
-							reviewsCount = 0;
-  		        while (entries.next())
+  				Statement statement = null;
+		      ResultSet entries = null;
+
+				try {
+    	  	  connection = connection == null ? getConnection() : connection;
+      	  	statement = connection.createStatement();
+        		entries = statement.executeQuery(
+          		"SELECT pName, pAge, pGender, pOtherGender, rName, rVisit, vTime, customerService, speed, quality, price, comments FROM reviews"
+  					);
+					
+	  				reviewsCount = 0;
+  	        while (entries.next())
+						{
+							for (int i=1; i<=12; i++)
 							{
-								for (int i=1; i<=12; i++)
-								{
 									if (i==2 || i==8 || i==9 || i==10 || i==11)
 										reviewsTable[reviewsCount][i-1] = Integer.toString(entries.getInt(i));
 									else
 										reviewsTable[reviewsCount][i-1] = entries.getString(i);
-								}
-								reviewsCount++;
-      	    	}
-							return reviewsTable;
-          	}// end of try
+							}
+							reviewsCount++;
+     	    	}
+						return reviewsTable;
+       	}// end of try
 					
-        		catch(URISyntaxException uriSyntaxException){
-          		uriSyntaxException.printStackTrace();
-        		}
-        		catch (Exception exception) {
-          		exception.printStackTrace();
-        		}finally {
-          		 if (statement != null) {
-            	 	  try{
-              				statement.close();
-            		  }catch(SQLException sqlException){
+     		catch(URISyntaxException uriSyntaxException){
+        		uriSyntaxException.printStackTrace();
+     		}
+     		catch (Exception exception) {
+        		exception.printStackTrace();
+     		}finally {
+       		 if (statement != null) {
+         	 	  try{
+           				statement.close();
+         		  }catch(SQLException sqlException){
               		sqlException.printStackTrace();
-            		  }
-          	   }
-        	  }
-						return null;
-				 } // end of getAllReviews
-    } //end of class EntriesManager		
+         		  }
+       	   }
+     	  }
+		  	return null;
+		 } // end of getAllReviews
+
+	
+  }// end of class EntriesManager	
 				
 	/** *****************************************************
 	 *  Overrides HttpServlet's doGet().
@@ -187,12 +187,11 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	 *  and echoes the result to the user.
 	********************************************************* */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		   EntriesManager entriesManager = new EntriesManager();
+		 EntriesManager entriesManager = new EntriesManager();
 
-		 boolean ok = entriesManager.save(request);
+	 	 Enumeration<String> requestParameters = request.getParameterNames();
 		
-		// get all of the parameters sent to the server
-		 Enumeration<String> requestParameters = request.getParameterNames();
+		 boolean ok = entriesManager.save(requestParameters, request);
 		
 		
 		// get the response printer ready

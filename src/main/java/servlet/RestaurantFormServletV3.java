@@ -10,6 +10,31 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.net.URISyntaxException;
+
+import javax.servlet.ServletOutputStream;
+
+
+
+
+
 /**
  * Servlet implementation class RestaurantFormServlet
  */
@@ -21,8 +46,8 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	// Location of servlet.
-	static String Domain  = "swe432-assignment6.herokuapp.com";
-	static String Path    = "/";
+	static String Domain  = "";
+	static String Path    = "";
 	static String Servlet = "restaurantForm3";
 	
 	static String formStyles = "/resources/css/form.css";
@@ -30,7 +55,120 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	static String bootstrapGridStyles = "/resources/css/bootstrap-grid.min.css.css";
     
 	static String formJs = "/resources/js/form.js";
+
 	
+	private static Connection connection = null;
+
+	
+     		private class EntriesManager{
+					
+      		private Connection getConnection()	throws URISyntaxException, SQLException {
+          			String dbUrl = System.getenv("JDBC_DATABASE_URL");
+          			return DriverManager.getConnection(dbUrl);
+   		   	}
+	
+		
+					public boolean save(HttpServletRequest request)
+					{
+					  PreparedStatement statement = null;
+						try	{
+							connection = connection == null ? getConnection() : connection;
+							
+							String insertQueryStr = "INSERT INTO reviews (pName, pAge, pGender, pOtherGender, rName, rVisit, vTime, cutomerService, speed, quality, price, comments) values (?,?,?,?,?,?,?,?,?,?,?,?)";     
+							
+							statement = connection.prepareStatement( insertQueryStr);
+							
+  						Enumeration<String> parameters = request.getParameterNames();
+
+							int c = 1;
+	   					while (parameters.hasMoreElements()) 
+							{
+				  			String parameterName = parameters.nextElement();
+				   			String parameterValue = request.getParameter(parameterName);
+								
+								if (c==2 || c==8 || c==9 || c==10 || c==11)
+								{
+									int intValue = Integer.parseInt(parameterValue);
+									statement.setInt(c, intValue);
+								}
+								else
+									statement.setString(c, parameterValue);
+								
+								c++;	
+
+							} // end while
+         			
+							statement.executeUpdate();
+							return true;
+						} // end trying connection and insert query
+		        catch(URISyntaxException uriSyntaxException){
+          		uriSyntaxException.printStackTrace();
+        		}
+        		catch (Exception exception) {
+          		exception.printStackTrace();
+        		}finally {
+          		if (statement != null) {
+            		try{
+              		statement.close();
+            		}catch(SQLException sqlException){
+              		sqlException.printStackTrace();
+            		}
+          		}
+        		}
+						return false;
+					} // end save method
+				
+	
+		      public String[][] getAllReviews()
+					{
+						int reviewsCount;
+						String[][] reviewsTable = new String[200][12];
+						for (int i=0; i<200; i++)
+							for (int j=0; j<12; j++)
+								reviewsTable[i][j] = "";
+					
+						Statement statement = null;
+  		      ResultSet entries = null;
+
+						try {
+      	  	  connection = connection == null ? getConnection() : connection;
+        	  	statement = connection.createStatement();
+          		entries = statement.executeQuery(
+            		"SELECT pName, pAge, pGender, pOtherGender, rName, rVisit, vTime, cutomerService, speed, quality, price, comments FROM reviews");
+					
+							reviewsCount = 0;
+  		        while (entries.next())
+							{
+								for (int i=1; i<=12; i++)
+								{
+									if (i==2 || i==8 || i==9 || i==10 || i==11)
+										reviewsTable[reviewsCount][i-1] = Integer.toString(entries.getInt(i));
+									else
+										reviewsTable[reviewsCount][i-1] = entries.getString(i);
+								}
+								reviewsCount++;
+      	    	}
+							return reviewsTable;
+          	}// end of try
+					
+        		catch(URISyntaxException uriSyntaxException){
+          		uriSyntaxException.printStackTrace();
+        		}
+        		catch (Exception exception) {
+          		exception.printStackTrace();
+        		}finally {
+          		 if (statement != null) {
+            	 	  try{
+              				statement.close();
+            		  }catch(SQLException sqlException){
+              		sqlException.printStackTrace();
+            		  }
+          	   }
+        	  }
+						return null;
+				 } // end of getAllReviews
+    } //end of class EntriesManager		
+				
 	/** *****************************************************
 	 *  Overrides HttpServlet's doGet().
 	 *  Prints an HTML page with a blank form.
@@ -49,14 +187,19 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	 *  and echoes the result to the user.
 	********************************************************* */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		   EntriesManager entriesManager = new EntriesManager();
+
+		 boolean ok = entriesManager.save(request);
+		
 		// get all of the parameters sent to the server
-		Enumeration<String> requestParameters = request.getParameterNames();
+		 Enumeration<String> requestParameters = request.getParameterNames();
+		
 		
 		// get the response printer ready
 		response.setContentType("text/html");
 	    PrintWriter out = response.getWriter();
 	    
-	    // print the results page
+		  // print the results page
 	    PrintHead(out, request);
 	    PrintBody(out, request, requestParameters);
 	    PrintTail(out);

@@ -95,7 +95,6 @@ public class RestaurantFormServletV3 extends HttpServlet {
 					} // end while
 	  
           statement.executeUpdate();
-					reviewsTotal++;
           return true;
 
 				}catch(URISyntaxException uriSyntaxException){

@@ -2,6 +2,7 @@ package servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	
 	private static String[] headerNames = {"pName", "pAge", "pGender", "pOtherGender", "rName", "rVisit",
         	"vTime", "customerService", "speed", "quality", "price", "comments"};
+	private static String[] reviewTableHeaderNames = {"restaurant", "average rating"};
 	
 	private class EntriesManager{
 		private Connection getConnection()
@@ -365,7 +367,6 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	{
 		
 		// print all previous reviews in a table
-		// todo: print out average of all reviews
 		out.println("	<body  class=\"container-fluid text-center\">");
 		out.println("		<h1>All Reviews</h1>");
 		out.println("		<p class=\"font-italic f-09\">Thank you for submitting the form.</p>");
@@ -384,6 +385,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		EntriesManager entriesManager = new EntriesManager();
 		boolean ok = entriesManager.save(parameters, request);
 		String[][] reviewsTable = entriesManager.getAllReviews();
+		HashMap<String, HashMap<Integer, Integer>> avgReviewsMap = new HashMap(); // parameters: restaurant name, sum, numReviews
 
 		// print table body
 		for (int i = 0; i < reviewsTable.length; i++)
@@ -392,15 +394,70 @@ public class RestaurantFormServletV3 extends HttpServlet {
 				break; // name is required, so if it's empty that means we have reached an empty row
 				// for some reason, the default size of the table is 200, so lots of useless rows are printed without this check
 			}
-			out.println("<tr>");
+			String restaurantName = "";
+			boolean foundRestaurantName = false;
 
+			out.println("<tr>");
 			for (int j = 0; j < headerNames.length; j++)
 			{
+				// get the restaurant name and insert into hashmap if it's not already in there
+				if (headerNames[i].compareTo("rName") == 0) {
+					restaurantName = reviewsTable[i][j];
+					if (!avgReviewsMap.containsKey(restaurantName)) {
+						HashMap<Integer, Integer> x = new HashMap();
+						x.put(0, 0);
+						avgReviewsMap.put(restaurantName, x);
+					}
+					foundRestaurantName = true;
+				}
+				// add up total sum of reviews for that restaurant and keep track of numReviews to aid in calculating average
+				if (foundRestaurantName && headerNames[i].compareTo("customerService") == 0 || 
+							headerNames[i].compareTo("speed") == 0 || headerNames[i].compareTo("quality") == 0 || 
+							headerNames[i].compareTo("price") == 0) {
+					int sum = new ArrayList<Integer>(avgReviewsMap.get(restaurantName).keySet()).get(0);
+					int numReviews = avgReviewsMap.get(restaurantName).get(sum);
+					numReviews++;
+					sum += Integer.parseInt(reviewsTable[i][j]);
+					HashMap<Integer, Integer> x = new HashMap();
+					x.put(sum, numReviews);
+					avgReviewsMap.replace(restaurantName, x);
+				}
+				
+				// print out value for parameter
 				out.println("<td>  " + reviewsTable[i][j] + " </td>");
 			}
 			out.println("</tr>");
 		}
 		out.println("	  </table>");
+		
+		// todo: print out average of all reviews by restaurant
+		out.println("		<h2>Aggregate Summary of Reviews</h2>");
+		out.println("		<p class=\"font-italic f-09\">Here are the aggregate reviews per restaurant.</p>");
+		out.println("		<table class=\"table table-sm table-bordered table-hover\">");
+
+		// print table header
+		out.println("			<thead class=\"thead-light\">");
+		out.println("				<tr>");
+		for (int i = 0; i < reviewTableHeaderNames.length; i++) {
+			out.println("				<th>" + reviewTableHeaderNames[i] + "</th>");
+		}
+		out.println("				</tr>");
+		out.println("			</thead>");
+		
+		ArrayList<String> restaurants = new ArrayList(avgReviewsMap.keySet());
+		for (int i = 0; i < restaurants.size(); i++) {
+			out.println("<tr>");
+			for (int j = 0; j < 2; j++) {
+				int sum;
+				int numReviews;
+				int average = 0;
+				out.println("<td> " + average + "  </td>");
+			}
+			out.println("</tr>");
+		}
+		
+		out.println("	  </table>");
+		
 		out.println("  </body>");
 	} 
 

@@ -432,7 +432,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		out.println("</tbody>");
 		out.println("	  </table>");
 		
-		// todo: print out average of all reviews by restaurant
+		// print out average of all reviews by restaurant
 		out.println("		<h2>Aggregate Summary of Reviews</h2>");
 		out.println("		<p class=\"font-italic f-09\">Here are the aggregate reviews per restaurant.</p>");
 		out.println("		<table class=\"table table-sm table-bordered table-hover\">");
@@ -446,24 +446,23 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		out.println("				</tr>");
 		out.println("			</thead>");
 		
+		// print table body
 		out.println("<tbody>");
 		ArrayList<String> restaurants = new ArrayList(avgReviewsMap.keySet());
 		for (int i = 0; i < restaurants.size(); i++) {
 			out.println("<tr>");
-			for (int j = 0; j < 2; j++) {
-				String restaurantName = restaurants.get(i);
-				out.println("<td> " + restaurantName + "  </td>");
-				int sum = new ArrayList<Integer>(avgReviewsMap.get(restaurantName).keySet()).get(0);
-				int numReviews = avgReviewsMap.get(restaurantName).get(sum);
-				double average = sum / numReviews;
-				out.println("<td> " + average + "  </td>");
-			}
+			
+			String restaurantName = restaurants.get(i);
+			int sum = new ArrayList<Integer>(avgReviewsMap.get(restaurantName).keySet()).get(0);
+			int numReviews = avgReviewsMap.get(restaurantName).get(sum);
+			double average = sum / numReviews;
+			
+			out.println("<td> " + restaurantName + "  </td>");
+			out.println("<td> " + average + "  </td>");
 			out.println("</tr>");
 		}
 		out.println("</tbody>");
-		
 		out.println("	  </table>");
-		
 		out.println("  </body>");
 	} 
 

@@ -50,7 +50,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 			return DriverManager.getConnection(dbUrl);
 		}
 
-		public boolean save(HashMap<String, String> parameterMap){
+		public boolean save(Enumeration<String> parameters, HttpServletRequest request){
 			PreparedStatement statement = null;
 			try {
 				connection = connection == null ? getConnection() : connection;
@@ -59,14 +59,14 @@ public class RestaurantFormServletV3 extends HttpServlet {
 						);  
 
 				int c = 1;
-				Enumeration<String> parameters = Collections.enumeration(parameterMap.keySet());
 				while (parameters.hasMoreElements()) 
 				{
 					String parameterName = parameters.nextElement();
-					String parameterValue = parameterMap.get(parameterName);
+					String parameterValue = request.getParameter(parameterName);
 
-					if (parameterName == "pAge" || parameterName == "customerService" || 
-							parameterName == "speed" || parameterName == "quality" || parameterName == "price")
+					if (parameterName.compareTo("pAge") == 0 || parameterName.compareTo("customerService") == 0 || 
+							parameterName.compareTo("speed") == 0 || parameterName.compareTo("quality") == 0 || 
+							parameterName.compareTo("price") == 0)
 					{
 						int intValue = Integer.parseInt(parameterValue);
 						statement.setInt(c, intValue);
@@ -355,20 +355,20 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		out.println("			<thead class=\"thead-light\">");
 		out.println("				<tr>");
 		
-		HashMap<String, String> parameterMap = new HashMap<String, String>();
+		/*HashMap<String, String> parameterMap = new HashMap<String, String>();
 		while (parameters.hasMoreElements()) {
 			String parameterName = parameters.nextElement();
 			String parameterValue = request.getParameter(parameterName);
 			parameterMap.put(parameterName, parameterValue); // copy request information into HashMap
 			
 			out.println("				<th>" + parameterName + "</th>");
-		}
+		}*/
 		out.println("				</tr>");
 		out.println("			</thead>");
 			
 		// save the current review in db and retrieve all previous reviews
 		EntriesManager entriesManager = new EntriesManager();
-		boolean ok = entriesManager.save(parameterMap);
+		boolean ok = entriesManager.save(parameters, request);
 		String[][] reviewsTable = entriesManager.getAllReviews();
 
 		// print table body

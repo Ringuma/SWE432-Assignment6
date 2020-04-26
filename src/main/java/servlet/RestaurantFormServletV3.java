@@ -402,8 +402,9 @@ public class RestaurantFormServletV3 extends HttpServlet {
 			for (int j = 0; j < headerNames.length; j++)
 			{
 				// get the restaurant name and insert into hashmap if it's not already in there
-				if (headerNames[i].compareTo("rName") == 0) {
+				if (!foundRestaurantName && headerNames[i].compareTo("rName") == 0) {
 					restaurantName = reviewsTable[i][j];
+					out.println(restaurantName);
 					if (!avgReviewsMap.containsKey(restaurantName)) {
 						HashMap<Integer, Integer> x = new HashMap();
 						x.put(0, 0);

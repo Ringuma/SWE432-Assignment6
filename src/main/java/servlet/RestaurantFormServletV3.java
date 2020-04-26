@@ -402,9 +402,8 @@ public class RestaurantFormServletV3 extends HttpServlet {
 			for (int j = 0; j < headerNames.length; j++)
 			{
 				// get the restaurant name and insert into hashmap if it's not already in there
-				if (!foundRestaurantName && headerNames[i].compareTo("rName") == 0) {
+				if (!foundRestaurantName && headerNames[j].compareTo("rName") == 0) {
 					restaurantName = reviewsTable[i][j];
-					out.println(restaurantName + i + j);
 					if (!avgReviewsMap.containsKey(restaurantName)) {
 						HashMap<Integer, Integer> x = new HashMap();
 						x.put(0, 0);
@@ -413,9 +412,9 @@ public class RestaurantFormServletV3 extends HttpServlet {
 					foundRestaurantName = true;
 				}
 				// add up total sum of reviews for that restaurant and keep track of numReviews to aid in calculating average
-				if (foundRestaurantName && headerNames[i].compareTo("customerService") == 0 || 
-							headerNames[i].compareTo("speed") == 0 || headerNames[i].compareTo("quality") == 0 || 
-							headerNames[i].compareTo("price") == 0) {
+				if (foundRestaurantName && headerNames[j].compareTo("customerService") == 0 || 
+							headerNames[j].compareTo("speed") == 0 || headerNames[j].compareTo("quality") == 0 || 
+							headerNames[j].compareTo("price") == 0) {
 					int sum = new ArrayList<Integer>(avgReviewsMap.get(restaurantName).keySet()).get(0);
 					int numReviews = avgReviewsMap.get(restaurantName).get(sum);
 					numReviews++;

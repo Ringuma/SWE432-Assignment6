@@ -185,13 +185,31 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		EntriesManager entriesManager = new EntriesManager();
 		// get all of the parameters sent to the server
 		Enumeration<String> requestParameters = request.getParameterNames();
+		
+		// get the response printer ready
+				response.setContentType("text/html");
+				PrintWriter out = response.getWriter();
+		
+		// print all previous reviews in a table
+				out.println("	<body  class=\"container text-center\">");
+				out.println("		<h1>All Reviews</h1>");
+				out.println("		<p class=\"font-italic f-09\">Thank you for submitting the form.</p>");
+				out.println("		<table class=\"table table-sm table-bordered table-hover\">");
+
+				// print table header
+				out.println("			<thead class=\"thead-light\">");
+				out.println("				<tr>");
+				while (requestParameters.hasMoreElements()) {
+					String parameterName = requestParameters.nextElement();
+					out.println("				<th>" + parameterName + "</th>");
+				}
+				out.println("				</tr>");
+				out.println("			</thead>");
 
 		// save the current review in db
 		boolean ok = entriesManager.save(requestParameters, request);
 
-		// get the response printer ready
-		response.setContentType("text/html");
-		PrintWriter out = response.getWriter();
+		
 
 		// print the results page
 		PrintHead(out, request);
@@ -357,26 +375,13 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	********************************************************* */
 	private void PrintBody (PrintWriter out, HttpServletRequest request, Enumeration<String> parameters)
 	{
-		// print all previous reviews in a table
-		out.println("	<body  class=\"container text-center\">");
-		out.println("		<h1>All Reviews</h1>");
-		out.println("		<p class=\"font-italic f-09\">Thank you for submitting the form.</p>");
-		out.println("		<table class=\"table table-sm table-bordered table-hover\">");
-
-		// print table header
-		out.println("			<thead class=\"thead-light\">");
-		out.println("				<tr>");
-		while (parameters.hasMoreElements()) {
-			String parameterName = parameters.nextElement();
-			out.println("				<th>" + parameterName + "</th>");
-		}
-		out.println("				</tr>");
-		out.println("			</thead>");
+		
 				
 		EntriesManager entriesManager = new EntriesManager();
 		String[][] reviewsTable = entriesManager.getAllReviews();
 
 		// print table body
+		out.println(reviewsTable.length);
 		for (int i=0; i<reviewsTable.length; i++)
 		{
 			out.println("<tr>");

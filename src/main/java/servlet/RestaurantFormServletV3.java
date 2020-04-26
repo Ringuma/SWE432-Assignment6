@@ -46,8 +46,8 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	// Location of servlet.
-	static String Domain  = "swe432-assignment6.herokuapp.com";
-	static String Path    = "/";
+	static String Domain  = "";
+	static String Path    = "";
 	static String Servlet = "restaurantForm3";
 	
 	static String formStyles = "/resources/css/form.css";
@@ -55,13 +55,11 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	static String bootstrapGridStyles = "/resources/css/bootstrap-grid.min.css.css";
     
 	static String formJs = "/resources/js/form.js";
-
 	
+	private static int reviewsTotal = 0;
 	private static Connection connection = null;
-
 	
   private class EntriesManager{
-		
       private Connection getConnection()
         throws URISyntaxException, SQLException {
           String dbUrl = System.getenv("JDBC_DATABASE_URL");
@@ -95,6 +93,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 					} // end while
 	  
           statement.executeUpdate();
+					reviewsTotal++;
           return true;
 
 				}catch(URISyntaxException uriSyntaxException){
@@ -115,58 +114,59 @@ public class RestaurantFormServletV3 extends HttpServlet {
         return false;
       }	
 	
-      public String[][] getAllReviews()
-			{
-				int reviewsCount;
-				String[][] reviewsTable = new String[200][12];
-				for (int i=0; i<200; i++)
-					for (int j=0; j<12; j++)
-						reviewsTable[i][j] = "";
+		      public String[][] getAllReviews()
+					{
+						int reviewsCount;
+						String[][] reviewsTable = new String[200][12];
+						for (int i=0; i<200; i++)
+							for (int j=0; j<12; j++)
+								reviewsTable[i][j] = "";
 					
-  				Statement statement = null;
-		      ResultSet entries = null;
+						Statement statement = null;
+  		      ResultSet entries = null;
 
-				try {
-    	  	  connection = connection == null ? getConnection() : connection;
-      	  	statement = connection.createStatement();
-        		entries = statement.executeQuery(
-          		"SELECT pName, pAge, pGender, pOtherGender, rName, rVisit, vTime, customerService, speed, quality, price, comments FROM reviews"
-  					);
+						try {
+      	  	  connection = connection == null ? getConnection() : connection;
+        	  	statement = connection.createStatement();
+          		entries = statement.executeQuery(
+            		"SELECT pName, pAge, pGender, pOtherGender, rName, rVisit, vTime, customerService, speed, quality, price, comments FROM reviews"
+							);
 					
-	  				reviewsCount = 0;
-  	        while (entries.next())
-						{
-							for (int i=1; i<=12; i++)
+							reviewsCount = 0;
+  		        while (entries.next())
 							{
+								for (int i=1; i<=12; i++)
+								{
 									if (i==2 || i==8 || i==9 || i==10 || i==11)
 										reviewsTable[reviewsCount][i-1] = Integer.toString(entries.getInt(i));
 									else
 										reviewsTable[reviewsCount][i-1] = entries.getString(i);
-							}
-							reviewsCount++;
-     	    	}
-						return reviewsTable;
-       	}// end of try
+								}
+								reviewsCount++;
+      	    	}
+							return reviewsTable;
+          	}// end of try
 					
-     		catch(URISyntaxException uriSyntaxException){
-        		uriSyntaxException.printStackTrace();
-     		}
-     		catch (Exception exception) {
-        		exception.printStackTrace();
-     		}finally {
-       		 if (statement != null) {
-         	 	  try{
-           				statement.close();
-         		  }catch(SQLException sqlException){
+        		catch(URISyntaxException uriSyntaxException){
+          		uriSyntaxException.printStackTrace();
+        		}
+        		catch (Exception exception) {
+          		exception.printStackTrace();
+        		}finally {
+          		 if (statement != null) {
+            	 	  try{
+              				statement.close();
+            		  }catch(SQLException sqlException){
               		sqlException.printStackTrace();
-         		  }
-       	   }
-     	  }
-		  	return null;
-		 } // end of getAllReviews
+            		  }
+          	   }
+        	  }
+						return null;
+				 } // end of getAllReviews
 
 	
-  }// end of class EntriesManager	
+    }// end of class EntriesManager	
+				
 				
 	/** *****************************************************
 	 *  Overrides HttpServlet's doGet().
@@ -192,9 +192,12 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		
 		 boolean ok = entriesManager.save(requestParameters, request);
 		
+		// get all of the parameters sent to the server
+    // Enumeration<String> requestParameters = request.getParameterNames();
+		
 		
 		// get the response printer ready
-		response.setContentType("text/html");
+		  response.setContentType("text/html");
 	    PrintWriter out = response.getWriter();
 	    
 		  // print the results page
@@ -358,10 +361,9 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	/** *****************************************************
 	 *  Prints the results page, 
 	 *  echoing the form data to the user.
-	********************************************************************************* */
+	********************************************************* */
 	private void PrintBody (PrintWriter out, HttpServletRequest request, Enumeration<String> parameters)
 	{
-		 //****** This is how I tested the retrieval of data from Database *********
 		 EntriesManager entriesManager = new EntriesManager();
   	 String[][] reviewsTable = entriesManager.getAllReviews();	
 		
@@ -369,7 +371,6 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		
 		 out.println("	<body>");
 		 out.println("	  <table>");
-		 out.println(reviewsTable);
 		 for (int i=0; i<reviewsTable.length; i++)
 		 {
 			 	out.println("<tr>");
@@ -382,7 +383,6 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		 }
 		 out.println("	  </table>");
 		 out.println("  </body>");
-		//***********************************************************************************
 		
 /*		
 	   out.println("	<body  class=\"container text-center\">");
@@ -417,6 +417,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	   out.println("	</body>");
 	*/
 	} 
+
 
 	/** *****************************************************
 	 *  Prints the bottom of the HTML page.

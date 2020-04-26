@@ -448,9 +448,11 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		for (int i = 0; i < restaurants.size(); i++) {
 			out.println("<tr>");
 			for (int j = 0; j < 2; j++) {
-				int sum;
-				int numReviews;
-				int average = 0;
+				String restaurantName = restaurants.get(i);
+				int sum = new ArrayList<Integer>(avgReviewsMap.get(restaurantName).keySet()).get(0);
+				int numReviews = avgReviewsMap.get(restaurantName).get(sum);
+				double average = sum / numReviews;
+				out.println("<td> " + restaurantName + "  </td>");
 				out.println("<td> " + average + "  </td>");
 			}
 			out.println("</tr>");

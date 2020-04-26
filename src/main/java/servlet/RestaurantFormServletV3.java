@@ -227,6 +227,13 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		}
 		
 		out.println("            <p class=\"f-09\">Form by Tanya Howard and Sergio Delgado</p>");
+		out.println("            <a class=\"f-09\" href\"\" target=\"_blank\">Collaboration Summary</a>");
+		out.println("            <p class=\"f-09\">Additional Features Implemented:</p>");
+		out.println("            <ul class=\"f-09\">");
+		out.println("            	<li class=\"f-09\">Store the data into a database.</li>");
+		out.println("            	<li class=\"f-09\">An average or aggregate summary of all reviews.</li>");
+		out.println("            	<li class=\"f-09\">Add use of a session object to display either the default header for the form, or a 'Welcome Back' message.</li>");
+		out.println("            </ul>");
 		out.println("            <form id=\"restaurantForm\" method=\"post\" action=\"" + Path + Servlet + "\">");
 		out.println("                <fieldset class=\"centerFieldset\">");
 		out.println("                    <legend>Personal Information</legend>");
@@ -359,7 +366,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		
 		// print all previous reviews in a table
 		// todo: print out average of all reviews
-		out.println("	<body  class=\"container text-center\">");
+		out.println("	<body  class=\"container-fluid text-center\">");
 		out.println("		<h1>All Reviews</h1>");
 		out.println("		<p class=\"font-italic f-09\">Thank you for submitting the form.</p>");
 		out.println("		<table class=\"table table-sm table-bordered table-hover\">");

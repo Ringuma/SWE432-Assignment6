@@ -65,7 +65,8 @@ public class RestaurantFormServletV3 extends HttpServlet {
 					String parameterName = parameters.nextElement();
 					String parameterValue = parameterMap.get(parameterName);
 
-					if (c==2 || c==8 || c==9 || c==10 || c==11)
+					if (parameterName == "pAge" || parameterName == "customerService" || 
+							parameterName == "speed" || parameterName == "quality" || parameterName == "price")
 					{
 						int intValue = Integer.parseInt(parameterValue);
 						statement.setInt(c, intValue);

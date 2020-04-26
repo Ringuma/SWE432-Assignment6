@@ -395,9 +395,6 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		}
 		out.println("	  </table>");
 		out.println("  </body>");
-		
-		HttpSession session = request.getSession();
-		session.invalidate();
 	} 
 
 

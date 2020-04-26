@@ -388,6 +388,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		HashMap<String, HashMap<Integer, Integer>> avgReviewsMap = new HashMap(); // parameters: restaurant name, sum, numReviews
 
 		// print table body
+		out.println("<tbody>");
 		for (int i = 0; i < reviewsTable.length; i++)
 		{
 			if (reviewsTable[i][0].trim() == "") {
@@ -428,6 +429,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 			}
 			out.println("</tr>");
 		}
+		out.println("</tbody>");
 		out.println("	  </table>");
 		
 		// todo: print out average of all reviews by restaurant
@@ -444,19 +446,21 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		out.println("				</tr>");
 		out.println("			</thead>");
 		
+		out.println("<tbody>");
 		ArrayList<String> restaurants = new ArrayList(avgReviewsMap.keySet());
 		for (int i = 0; i < restaurants.size(); i++) {
 			out.println("<tr>");
 			for (int j = 0; j < 2; j++) {
 				String restaurantName = restaurants.get(i);
+				out.println("<td> " + restaurantName + "  </td>");
 				int sum = new ArrayList<Integer>(avgReviewsMap.get(restaurantName).keySet()).get(0);
 				int numReviews = avgReviewsMap.get(restaurantName).get(sum);
 				double average = sum / numReviews;
-				out.println("<td> " + restaurantName + "  </td>");
 				out.println("<td> " + average + "  </td>");
 			}
 			out.println("</tr>");
 		}
+		out.println("</tbody>");
 		
 		out.println("	  </table>");
 		

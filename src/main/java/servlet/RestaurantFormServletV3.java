@@ -357,9 +357,6 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	********************************************************* */
 	private void PrintBody (PrintWriter out, HttpServletRequest request, Enumeration<String> parameters)
 	{
-		EntriesManager entriesManager = new EntriesManager();
-		String[][] reviewsTable = entriesManager.getAllReviews();	
-
 		// print all previous reviews in a table
 		out.println("	<body  class=\"container text-center\">");
 		out.println("		<h1>All Reviews</h1>");
@@ -375,6 +372,9 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		}
 		out.println("				</tr>");
 		out.println("			</thead>");
+				
+		EntriesManager entriesManager = new EntriesManager();
+		String[][] reviewsTable = entriesManager.getAllReviews();
 
 		// print table body
 		for (int i=0; i<reviewsTable.length; i++)

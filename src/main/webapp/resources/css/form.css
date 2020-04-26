@@ -24,6 +24,9 @@ textarea {
 }
 ul {
 	list-style-type: none;
+	margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid lightgray;
 }
 
 /* Results page */

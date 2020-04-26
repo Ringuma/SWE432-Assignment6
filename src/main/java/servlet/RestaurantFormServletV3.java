@@ -51,8 +51,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	static String bootstrapGridStyles = "/resources/css/bootstrap-grid.min.css.css";
     
 	static String formJs = "/resources/js/form.js";
-	
-	private static int reviewsTotal = 0;
+
 	private static Connection connection = null;
 	
 	private class EntriesManager{
@@ -89,7 +88,6 @@ public class RestaurantFormServletV3 extends HttpServlet {
 				} // end while
 
 				statement.executeUpdate();
-				//reviewsTotal++;
 				return true;
 
 			}catch(URISyntaxException uriSyntaxException){
@@ -182,35 +180,13 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	 *  and echoes the result to the user.
 	********************************************************* */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		EntriesManager entriesManager = new EntriesManager();
 		// get all of the parameters sent to the server
 		Enumeration<String> requestParameters = request.getParameterNames();
 		
 		// get the response printer ready
-				response.setContentType("text/html");
-				PrintWriter out = response.getWriter();
+		response.setContentType("text/html");
+		PrintWriter out = response.getWriter();
 		
-		// print all previous reviews in a table
-				out.println("	<body  class=\"container text-center\">");
-				out.println("		<h1>All Reviews</h1>");
-				out.println("		<p class=\"font-italic f-09\">Thank you for submitting the form.</p>");
-				out.println("		<table class=\"table table-sm table-bordered table-hover\">");
-
-				// print table header
-				out.println("			<thead class=\"thead-light\">");
-				out.println("				<tr>");
-				while (requestParameters.hasMoreElements()) {
-					String parameterName = requestParameters.nextElement();
-					out.println("				<th>" + parameterName + "</th>");
-				}
-				out.println("				</tr>");
-				out.println("			</thead>");
-
-		// save the current review in db
-		boolean ok = entriesManager.save(requestParameters, request);
-
-		
-
 		// print the results page
 		PrintHead(out, request);
 		PrintBody(out, request, requestParameters);
@@ -376,14 +352,37 @@ public class RestaurantFormServletV3 extends HttpServlet {
 	private void PrintBody (PrintWriter out, HttpServletRequest request, Enumeration<String> parameters)
 	{
 		
+		// print all previous reviews in a table
+		// todo: print out average of all reviews
+		// todo: use session object to remember last submitted name if they submitted a review previously
+		out.println("	<body  class=\"container text-center\">");
+		out.println("		<h1>All Reviews</h1>");
+		out.println("		<p class=\"font-italic f-09\">Thank you for submitting the form.</p>");
+		out.println("		<table class=\"table table-sm table-bordered table-hover\">");
+
+		// print table header, make sure to do this before calling the db api, as the request object will be wiped out after
+		out.println("			<thead class=\"thead-light\">");
+		out.println("				<tr>");
+		while (parameters.hasMoreElements()) {
+			String parameterName = parameters.nextElement();
+			out.println("				<th>" + parameterName + "</th>");
+		}
+		out.println("				</tr>");
+		out.println("			</thead>");
 				
 		EntriesManager entriesManager = new EntriesManager();
+		// save the current review in db
+		boolean ok = entriesManager.save(parameters, request);
 		String[][] reviewsTable = entriesManager.getAllReviews();
 
 		// print table body
-		out.println(reviewsTable.length);
+		//out.println(reviewsTable.length);
 		for (int i=0; i<reviewsTable.length; i++)
 		{
+			if (reviewsTable[i][0].trim() == "") {
+				break; // name is required, so if it's empty that means we have reached an empty row
+				// for some reason, the default size of the table is 200, so lots of useless rows are printed without this check
+			}
 			out.println("<tr>");
 
 			for (int j=0; j<reviewsTable[i].length; j++)

@@ -2,24 +2,15 @@ package servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.io.IOException;
-import java.io.FileNotFoundException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -28,8 +19,6 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.net.URISyntaxException;
-
-import javax.servlet.ServletOutputStream;
 
 /**
  * Servlet implementation class RestaurantFormServlet
@@ -61,7 +50,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 			return DriverManager.getConnection(dbUrl);
 		}
 
-		public boolean save(Enumeration<String> parameters, HttpServletRequest request){
+		public boolean save(HashMap<String, String> parameterMap){
 			PreparedStatement statement = null;
 			try {
 				connection = connection == null ? getConnection() : connection;
@@ -70,10 +59,11 @@ public class RestaurantFormServletV3 extends HttpServlet {
 						);  
 
 				int c = 1;
+				Enumeration<String> parameters = Collections.enumeration(parameterMap.keySet());
 				while (parameters.hasMoreElements()) 
 				{
 					String parameterName = parameters.nextElement();
-					String parameterValue = request.getParameter(parameterName);
+					String parameterValue = parameterMap.get(parameterName);
 
 					if (c==2 || c==8 || c==9 || c==10 || c==11)
 					{
@@ -363,20 +353,24 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		// print table header, make sure to do this before calling the db api, as the request object will be wiped out after
 		out.println("			<thead class=\"thead-light\">");
 		out.println("				<tr>");
+		
+		HashMap<String, String> parameterMap = new HashMap<String, String>();
 		while (parameters.hasMoreElements()) {
 			String parameterName = parameters.nextElement();
+			String parameterValue = request.getParameter(parameterName);
+			parameterMap.put(parameterName, parameterValue); // copy request information into HashMap
+			
 			out.println("				<th>" + parameterName + "</th>");
 		}
 		out.println("				</tr>");
 		out.println("			</thead>");
-				
+			
+		// save the current review in db and retrieve all previous reviews
 		EntriesManager entriesManager = new EntriesManager();
-		// save the current review in db
-		boolean ok = entriesManager.save(parameters, request);
+		boolean ok = entriesManager.save(parameterMap);
 		String[][] reviewsTable = entriesManager.getAllReviews();
 
 		// print table body
-		//out.println(reviewsTable.length);
 		for (int i=0; i<reviewsTable.length; i++)
 		{
 			if (reviewsTable[i][0].trim() == "") {

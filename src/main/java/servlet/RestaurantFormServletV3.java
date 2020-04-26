@@ -50,7 +50,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 			return DriverManager.getConnection(dbUrl);
 		}
 
-		public boolean save(Enumeration<String> parameters, HttpServletRequest request){
+		public boolean save(HashMap<String, String> parameterMap){
 			PreparedStatement statement = null;
 			try {
 				connection = connection == null ? getConnection() : connection;
@@ -59,10 +59,11 @@ public class RestaurantFormServletV3 extends HttpServlet {
 						);  
 
 				int c = 1;
+				Enumeration<String> parameters = Collections.enumeration(parameterMap.keySet());
 				while (parameters.hasMoreElements()) 
 				{
 					String parameterName = parameters.nextElement();
-					String parameterValue = request.getParameter(parameterName);
+					String parameterValue = parameterMap.get(parameterName);
 
 					if (parameterName.compareTo("pAge") == 0 || parameterName.compareTo("customerService") == 0 || 
 							parameterName.compareTo("speed") == 0 || parameterName.compareTo("quality") == 0 || 
@@ -355,20 +356,20 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		out.println("			<thead class=\"thead-light\">");
 		out.println("				<tr>");
 		
-		/*HashMap<String, String> parameterMap = new HashMap<String, String>();
+		HashMap<String, String> parameterMap = new HashMap<String, String>();
 		while (parameters.hasMoreElements()) {
 			String parameterName = parameters.nextElement();
 			String parameterValue = request.getParameter(parameterName);
 			parameterMap.put(parameterName, parameterValue); // copy request information into HashMap
 			
 			out.println("				<th>" + parameterName + "</th>");
-		}*/
+		}
 		out.println("				</tr>");
 		out.println("			</thead>");
 			
 		// save the current review in db and retrieve all previous reviews
 		EntriesManager entriesManager = new EntriesManager();
-		boolean ok = entriesManager.save(parameters, request);
+		boolean ok = entriesManager.save(parameterMap);
 		String[][] reviewsTable = entriesManager.getAllReviews();
 
 		// print table body

@@ -229,7 +229,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		}
 		
 		out.println("            <p class=\"f-09 mb-0\">Form by Tanya Howard and Sergio Delgado</p>");
-		out.println("            <a class=\"f-09\" href=\"#\" target=\"_blank\">Collaboration Summary</a>");
+		out.println("            <a class=\"f-09\" href=\"http://mason.gmu.edu/~thoward9/Assignment8/SWE432%20-%20Assignment%208%20Collaboration%20Summary.pdf\" target=\"_blank\">Collaboration Summary</a>");
 		out.println("            <p class=\"f-09 font-weight-bold mb-0\">Additional Features Implemented:</p>");
 		out.println("            <ul class=\"f-09\">");
 		out.println("            	<li class=\"f-09\">Store the data into a database.</li>");

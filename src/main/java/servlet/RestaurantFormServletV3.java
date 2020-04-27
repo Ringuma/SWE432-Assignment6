@@ -350,7 +350,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		out.println("");                
 		out.println("                <input type=\"reset\" id=\"resetButton\" class=\"mr-3\" value=\"Clear Answers\" />");
 		out.println("                <input type=\"submit\" id=\"submitButton\" value=\"Submit Review\" />");
-		out.println("		</form>");
+		out.println("		 	</form>");
 		out.println("        </div>");
 		out.println("");
 		out.println("        <!-- put script at the bottom of the body so it can run after the page is instantiated -->");
@@ -388,7 +388,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		HashMap<String, HashMap<Integer, Integer>> avgReviewsMap = new HashMap(); // parameters: restaurant name, sum, numReviews
 
 		// print table body
-		out.println("<tbody>");
+		out.println("			<tbody>");
 		for (int i = 0; i < reviewsTable.length; i++)
 		{
 			if (reviewsTable[i][0].trim() == "") {
@@ -398,7 +398,7 @@ public class RestaurantFormServletV3 extends HttpServlet {
 			String restaurantName = "";
 			boolean foundRestaurantName = false;
 
-			out.println("<tr>");
+			out.println("				<tr>");
 			for (int j = 0; j < headerNames.length; j++)
 			{
 				// get the restaurant name and insert into hashmap if it's not already in there
@@ -425,11 +425,11 @@ public class RestaurantFormServletV3 extends HttpServlet {
 				}
 				
 				// print out value for parameter
-				out.println("<td>  " + reviewsTable[i][j] + " </td>");
+				out.println("					<td>  " + reviewsTable[i][j] + " </td>");
 			}
-			out.println("</tr>");
+			out.println("				</tr>");
 		}
-		out.println("</tbody>");
+		out.println("			</tbody>");
 		out.println("	  </table>");
 		
 		// print out average of all reviews by restaurant
@@ -441,27 +441,27 @@ public class RestaurantFormServletV3 extends HttpServlet {
 		out.println("			<thead class=\"thead-light\">");
 		out.println("				<tr>");
 		for (int i = 0; i < reviewTableHeaderNames.length; i++) {
-			out.println("				<th>" + reviewTableHeaderNames[i] + "</th>");
+			out.println("					<th>" + reviewTableHeaderNames[i] + "</th>");
 		}
 		out.println("				</tr>");
 		out.println("			</thead>");
 		
 		// print table body
-		out.println("<tbody>");
+		out.println("			<tbody>");
 		ArrayList<String> restaurants = new ArrayList(avgReviewsMap.keySet());
 		for (int i = 0; i < restaurants.size(); i++) {
-			out.println("<tr>");
+			out.println("				<tr>");
 			
 			String restaurantName = restaurants.get(i);
 			int sum = new ArrayList<Integer>(avgReviewsMap.get(restaurantName).keySet()).get(0);
 			int numReviews = avgReviewsMap.get(restaurantName).get(sum);
 			double average = sum / numReviews;
 			
-			out.println("<td> " + restaurantName + "  </td>");
-			out.println("<td> " + average + "  </td>");
-			out.println("</tr>");
+			out.println("					<td> " + restaurantName + "  </td>");
+			out.println("					<td> " + average + "  </td>");
+			out.println("				</tr>");
 		}
-		out.println("</tbody>");
+		out.println("			</tbody>");
 		out.println("	  </table>");
 		out.println("  </body>");
 	} 
